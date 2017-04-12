@@ -1,9 +1,11 @@
 package com.filesocketclient;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.socket.client.FileClient;
 import com.socket.client.callback.ProcessListener;
@@ -35,6 +37,11 @@ public class ClientManager {
    public ClientManager(Context context, String filePath) {
       this.mContext = context;
       this.mFilePath = filePath;
+
+      return;
+   }
+   public ClientManager(Context context ) {
+      this.mContext = context;
 
       return;
    }
@@ -179,6 +186,11 @@ public class ClientManager {
                }
 
                @Override
+               public void onGetTopApp(String str) {
+                   // TODO: 2017/4/11
+               }
+
+               @Override
                public void onServerCanNotCreateFolder() {
                   if (DEBUG) {
                      SimpleLog.d("client --- upload --- onServerCanNotCreateFolder ：");
@@ -264,5 +276,103 @@ public class ClientManager {
       else {
          Log.d("lee", "no intent action view !!!");
       }
+   }
+
+   public void getTopApp() {
+
+      SingleThreadUtils.execute(new Runnable() {
+
+         @Override
+         public void run() {
+            quit();
+            if (DEBUG) {
+               SimpleLog.d("client --- try connect server use port : " + mPort);
+            }
+            mFileClient = new FileClient(mHost, mPort);
+
+
+            mFileClient.getTopApp(new ProcessListener() {
+               @Override
+               public void onLocalFileDoNotExist(String filePath) {
+
+               }
+
+               @Override
+               public void onServerNotResponse(String protocolCode) {
+
+               }
+
+               @Override
+               public void onServerErrorResponse(String protocolCode) {
+
+               }
+
+               @Override
+               public void onAuthResult(boolean result) {
+
+               }
+
+               @Override
+               public void onServerCanNotInstall(String path) {
+
+               }
+
+               @Override
+               public void onServerCanNotReadSdcardFile(String path) {
+
+               }
+
+               @Override
+               public void onServerCanReadSdcardFile(String path) {
+
+               }
+
+               @Override
+               public void onGetTopApp(final String str) {
+
+                  SimpleLog.d("onGetTopApp : " +str);
+
+                  ((Activity) mContext).runOnUiThread(new Runnable() {
+                     @Override
+                     public void run() {
+                        Toast.makeText(mContext, str ,Toast.LENGTH_LONG).show();
+                     }
+                  });
+
+               }
+
+               @Override
+               public void onServerCanNotCreateFolder() {
+
+               }
+
+               @Override
+               public void onTransferProcess(long total, long length) {
+
+               }
+
+               @Override
+               public void onTransferResult(boolean result) {
+
+               }
+
+               @Override
+               public void onTransferFileNotVaild() {
+
+               }
+
+               @Override
+               public void onInstallResult(boolean result) {
+
+               }
+
+               @Override
+               public void onException(Exception e) {
+
+               }
+            });
+
+         }
+      });
    }
 }

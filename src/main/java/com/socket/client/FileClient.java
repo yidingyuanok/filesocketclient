@@ -116,6 +116,7 @@ public class FileClient {
                header.setName(f.getName());
                header.setPosition(0);
                header.setFilePath(_Path);
+               header.setType(1);
                //文件信息
                String fileMsg = ProtocolCode.C_FILE_MESSAGE_JSON_CODE + ProtocolCode.SEPARATOR + header.toResponse();
                mOutStream.write(fileMsg.getBytes());
@@ -275,5 +276,126 @@ public class FileClient {
          return null;
       }
       return authSplit[1];
+   }
+
+   public void getTopApp( ProcessListener _Listener) {
+      if (DEBUG) {
+         SimpleLog.d("client --- upload --- thread : " + Thread.currentThread().getName());
+      }
+      try {
+
+
+         try {
+
+            if (null == mSocket) {
+               SimpleLog.d("InetAddress.getLocalHost() : " + InetAddress.getLocalHost());  // localhost/127.0.0.1
+               mHost = InetAddress.getLocalHost().getHostAddress();
+//               mHost = "localhost/127.0.0.1";
+               SimpleLog.d("client --- host : " + mHost);
+               SimpleLog.d("client --- port : " + mPort);
+               mSocket = new Socket(InetAddress.getLocalHost(), mPort);
+               mSocket.setSoTimeout(10 * 1000);
+
+            } /* End if () */
+
+            SimpleLog.d("client --- socket : " + mSocket);
+            SimpleLog.d("client --- socket : " + mSocket);
+
+         }
+         catch (Exception _E) {
+
+            SimpleLog.d("client --- socket : Exception : " + _E);
+            SimpleLog.d("client --- socket : Exception : " + _E);
+
+         }
+
+         //发送
+         mOutStream = mSocket.getOutputStream();
+         //接收
+         mInStream = new PushbackInputStream(mSocket.getInputStream());
+         //身份验证
+         String encrypt = AES.encrypt(ProtocolCode.MESSAGE_AUTHENTICATION, ProtocolCode.AES_PASSWORD);
+         String authMsg = ProtocolCode.C_AUTHENTICATION_CODE + ProtocolCode.SEPARATOR + encrypt + "\r\n";
+         mOutStream.write(authMsg.getBytes());
+         if (DEBUG) {
+            SimpleLog.d("client --- send auth msg : " + authMsg);
+         }
+
+         String response = StreamUtils.readLine(mInStream);
+
+         if (DEBUG) {
+            SimpleLog.d("client --- receive auth response : " + response);
+         }
+         if (responseIsNull(response)) {
+            //服务端没响应身份验证
+            if (_Listener != null) {
+               _Listener.onServerNotResponse(ProtocolCode.AUTHENTICATION_RESPONSE_CODE);
+            }
+            return;
+         }
+         if (responseCodeIsCorrect(response, ProtocolCode.S_AUTHENTICATION_CODE)) {
+            if (resultSuccess(response)) {
+               //身份验证成功
+               if (_Listener != null) {
+                  _Listener.onAuthResult(true);
+               }
+               SocketHeader header = new SocketHeader();
+               header.setType(2);
+
+               //文件信息
+               String fileMsg = ProtocolCode.C_FILE_MESSAGE_JSON_CODE + ProtocolCode.SEPARATOR + header.toResponse();
+               mOutStream.write(fileMsg.getBytes());
+               if (DEBUG) {
+                  SimpleLog.d("client --- send file msg : " + fileMsg);
+               }
+               response = StreamUtils.readLine(mInStream);
+               if (DEBUG) {
+                  SimpleLog.d("client --- receive file msg response : " + response);
+               }
+               if (responseIsNull(response)) {
+                  //服务端没响应文件信息
+                  if (_Listener != null) {
+                     _Listener.onServerNotResponse(ProtocolCode.FILE_MESSAGE_RESPONSE_CODE);
+                  }
+                  return;
+               }
+               // getTopApp
+               if (responseCodeIsCorrect(response, ProtocolCode.S_TOPAPP_RESULT_CODE)) {
+
+                  SimpleLog.d("getTopApp : " + splitResponseOne(response));
+
+                  if (_Listener != null) {
+                     _Listener.onGetTopApp(splitResponseOne(response));
+
+                  }
+               }
+               else {
+                  //文件信息返回码不对
+                  if (_Listener != null) {
+                     _Listener.onServerErrorResponse(ProtocolCode.FILE_MESSAGE_RESPONSE_CODE);
+                  }
+               }
+
+            }
+            else {
+               //身份验证失败
+               if (_Listener != null) {
+                  _Listener.onAuthResult(false);
+               }
+            }
+         }
+         else {
+            //身份验证返回码不对
+            if (_Listener != null) {
+               _Listener.onServerErrorResponse(ProtocolCode.AUTHENTICATION_RESPONSE_CODE);
+            }
+         }
+      }
+      catch (Exception e) {
+         if (_Listener != null) {
+            _Listener.onException(e);
+         }
+         e.printStackTrace();
+      }
    }
 }
