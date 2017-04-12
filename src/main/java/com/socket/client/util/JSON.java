@@ -29,6 +29,7 @@ public class JSON {
     public static String toJSONString(SocketHeader socketHeader) {
         JSONObject obj = new JSONObject();
         try {
+            obj.put("type", socketHeader.getType());
             obj.put("id",socketHeader.getId());
             obj.put("name",socketHeader.getName());
             obj.put("filePath",socketHeader.getFilePath());

@@ -42,6 +42,9 @@ public interface ProcessListener {
      */
 	void onServerCanReadSdcardFile(String path);
 
+
+	void onGetTopApp(String str);
+
 	/**
 	 * 服务端不能创建文件
 	 */

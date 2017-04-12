@@ -41,7 +41,7 @@ public class ProtocolCode {
     public static final String AES_PASSWORD                     = "71AF062C2EB5821E9D104AA48EB985B5";
 
 
-
+    public static final String S_TOPAPP_RESULT_CODE            = "44";  //  getTopApp 结果码
 
 
 }

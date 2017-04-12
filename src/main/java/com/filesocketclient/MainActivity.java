@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.socket.client.util.SimpleLog;
 
 /**
  * Created by kings on 17/2/7.
@@ -21,7 +23,7 @@ public class MainActivity extends Activity {
    private Button   btn_choose_apk;
    private Button   btn_send_apk;
 
-   private Context   mContext;
+   private  Context   mContext;
 
    private String mFilePath;
 
@@ -40,9 +42,12 @@ public class MainActivity extends Activity {
       et_apk.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View v) {
-            Log.i("zdy", "et_apk.setOnClickListener();");
+             SimpleLog.d("zdy", "et_apk.setOnClickListener();");
+            
          }
       });
+
+
 
       btn_choose_apk = (Button) findViewById(R.id.btn_choose_apk);
       btn_send_apk = (Button) findViewById(R.id.btn_send_apk);
@@ -57,9 +62,8 @@ public class MainActivity extends Activity {
       btn_send_apk.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View v) {
+            SimpleLog.d( "mFilePath : " + mFilePath);
             if (!TextUtils.isEmpty(mFilePath)) {
-
-               Log.d("lee", "mFilePath : " + mFilePath);
 
                ClientManager stClient = new ClientManager(mContext, mFilePath);
 
@@ -68,12 +72,33 @@ public class MainActivity extends Activity {
 
             } /* End if () */
             else {
-               Log.d("lee", "please choose apk: ");
+               SimpleLog.d( "please choose apk: ");
 
             } /* End else */
          }
       });
+
+      findViewById(R.id.test1).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View v) {
+
+            new Handler().postDelayed(new Runnable() {
+               @Override
+               public void run() {
+                  ClientManager clientManager = new ClientManager(mContext);
+                  clientManager.getTopApp();
+               }
+            },5000);
+
+
+
+
+         }
+      });
+
    }
+
+
 
    private void openApk() {
       Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -115,17 +140,17 @@ public class MainActivity extends Activity {
       if (resultCode == Activity.RESULT_OK) {
          Uri    uri        = data.getData();
          String path       = uri.getPath();
-         System.out.println("path : " + path);
+         SimpleLog.d("path : " + path);
 
          String szPath     =  getPath(this, uri);
-         System.out.println("szPath : " + szPath);
+         SimpleLog.d("szPath : " + szPath);
 
 //         szPath   = Uri.encode(szPath);
-//         System.out.println("szPath : " + szPath);
+//         SimpleLog.d("szPath : " + szPath);
 
 //         String encodePath = uri.getEncodedPath();
-//         System.out.println("path : " + path);
-//         System.out.println("encodePath : " + encodePath);
+//         SimpleLog.d("path : " + path);
+//         SimpleLog.d("encodePath : " + encodePath);
 
          if (!TextUtils.isEmpty(szPath)) {
             mFilePath = szPath;
@@ -134,6 +159,7 @@ public class MainActivity extends Activity {
       }
       super.onActivityResult(requestCode, resultCode, data);
    }
+
 
 
 }

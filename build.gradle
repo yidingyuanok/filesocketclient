@@ -18,13 +18,13 @@ buildscript {
 }
 
 android {
-    compileSdkVersion       21
+    compileSdkVersion       23
     buildToolsVersion       '25.0.2'
 
     defaultConfig {
         applicationId "com.filesocketclient"
         minSdkVersion 8
-        targetSdkVersion 21
+        targetSdkVersion 19
         versionCode 1
         versionName "1.0"
     }
@@ -39,4 +39,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
 }

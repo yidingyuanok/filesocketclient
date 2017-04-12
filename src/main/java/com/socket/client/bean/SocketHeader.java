@@ -20,6 +20,8 @@ public class SocketHeader implements Serializable {
 	private long position;
 	/**文件路径 */
 	private String filePath;
+
+	private int type ;
 	
 	public String getId() {
 		return id;
@@ -71,5 +73,13 @@ public class SocketHeader implements Serializable {
 
 	public void setFilePath(String filePath) {
 		this.filePath = filePath;
+	}
+
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
 	}
 }
