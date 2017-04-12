@@ -5,4 +5,8 @@ package com.test;
  */
 
 public class a {
+
+    private void feature1() {
+        System.out.println("feature 1 ");
+    }
 }
